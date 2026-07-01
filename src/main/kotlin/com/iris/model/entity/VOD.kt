@@ -1,0 +1,26 @@
+package com.iris.model.entity
+
+import jakarta.persistence.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+@Entity
+@Table(name = "vods")
+data class VOD(
+    @Id
+    val id: String = java.util.UUID.randomUUID().toString(),
+
+    @Column(name = "member_id", nullable = false)
+    val memberId: String,
+
+    @Column(nullable = false)
+    var title: String,
+
+    @Column(nullable = false)
+    var url: String,
+
+    val date: LocalDate = LocalDate.now(),
+
+    @Column(name = "created_at")
+    val createdAt: LocalDateTime = LocalDateTime.now()
+)
