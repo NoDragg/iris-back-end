@@ -17,24 +17,31 @@ class CloudinaryService(
     @Value("\${cloudinary.upload.avatar-folder:avatars}") private val avatarFolder: String,
     @Value("\${cloudinary.upload.vod-folder:vods}") private val vodFolder: String
 ) {
-    private val uploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/auto/upload"
+    // Sử dụng unsigned upload - cần tạo upload preset trên Cloudinary Dashboard
+    private val uploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload"
+    private val videoUploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/video/upload"
 
     fun uploadAvatar(file: MultipartFile): String {
-        val params = mapOf(
-            "folder" to avatarFolder,
-            "transformation" to "c_fill,w_200,h_200,g_face"
-        )
-        return upload(file, "image", params)
+        val tempFile = multipartToFile(file)
+        return try {
+            uploadToCloudinary(tempFile, uploadUrl)
+        } finally {
+            tempFile.delete()
+        }
     }
 
     fun uploadVOD(file: MultipartFile): String {
-        val params = mapOf("folder" to vodFolder)
-        return upload(file, "video", params)
+        val tempFile = multipartToFile(file)
+        return try {
+            uploadToCloudinary(tempFile, videoUploadUrl)
+        } finally {
+            tempFile.delete()
+        }
     }
 
-    private fun upload(file: MultipartFile, type: String, params: Map<String, String>): String {
+    private fun uploadToCloudinary(file: File, uploadEndpoint: String): String {
         val boundary = UUID.randomUUID().toString()
-        val url = URL("$uploadUrl?resource_type=$type")
+        val url = URL("$uploadEndpoint?upload_preset=ml_default")
 
         val conn = url.openConnection() as HttpURLConnection
         conn.doOutput = true
@@ -46,25 +53,17 @@ class CloudinaryService(
 
         // File part
         writer.write("--$boundary\r\n")
-        writer.write("Content-Disposition: form-data; name=\"file\"; filename=\"${file.originalFilename}\"\r\n")
-        writer.write("Content-Type: ${file.contentType ?: "application/octet-stream"}\r\n\r\n")
+        writer.write("Content-Disposition: form-data; name=\"file\"; filename=\"${file.name}\"\r\n")
+        writer.write("Content-Type: application/octet-stream\r\n\r\n")
         writer.flush()
-        os.write(file.bytes)
+        os.write(file.readBytes())
         os.flush()
 
-        // API Key
+        // Upload preset (unsigned)
         writer.write("\r\n--$boundary\r\n")
-        writer.write("Content-Disposition: form-data; name=\"api_key\"\r\n\r\n")
-        writer.write("$apiKey\r\n")
+        writer.write("Content-Disposition: form-data; name=\"upload_preset\"\r\n\r\n")
+        writer.write("ml_default\r\n")
         writer.flush()
-
-        // Add params
-        params.forEach { (k, v) ->
-            writer.write("--$boundary\r\n")
-            writer.write("Content-Disposition: form-data; name=\"$k\"\r\n\r\n")
-            writer.write("$v\r\n")
-            writer.flush()
-        }
 
         writer.write("--$boundary--\r\n")
         writer.close()
@@ -73,8 +72,15 @@ class CloudinaryService(
         val response = conn.inputStream.bufferedReader().readText()
         conn.disconnect()
 
-        // Parse JSON manually - find "secure_url"
-        val urlMatch = Regex("\"secure_url\"\\s*:\\s*\"([^\"]+)\"").find(response)
+        // Parse JSON response - tìm secure_url
+        val pattern = Regex(""""secure_url"\s*:\s*"([^"]+)""")
+        val urlMatch = pattern.find(response)
         return urlMatch?.groupValues?.get(1) ?: throw RuntimeException("Upload failed: $response")
+    }
+
+    private fun multipartToFile(file: MultipartFile): File {
+        val tempFile = File.createTempFile("upload_", file.originalFilename ?: "file")
+        FileOutputStream(tempFile).use { it.write(file.bytes) }
+        return tempFile
     }
 }
