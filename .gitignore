@@ -1,0 +1,32 @@
+# Environment
+.env
+
+# Build output
+build/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+
+# Docker
+.dockerignore
+
+# GitHub
+.github/
+
+# Docs
+docs/
