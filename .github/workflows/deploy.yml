@@ -3,24 +3,18 @@ name: Build Docker
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     services:
       docker:
         image: docker:20.10.16
         options: --privileged
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Build Docker image
         run: docker build -t iris-backend .
-
       - name: Run tests
         run: docker run --rm iris-backend ./gradlew test || true
