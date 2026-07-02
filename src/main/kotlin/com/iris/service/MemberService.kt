@@ -46,6 +46,12 @@ class MemberService(
         req.rank?.let { member.rank = it }
         req.position?.let { member.position = it }
         req.avatarUrl?.let { member.avatarUrl = it }
+        req.stats?.let { stats ->
+            stats.aim?.let { member.aim = it }
+            stats.gameSense?.let { member.gameSense = it }
+            stats.teamwork?.let { member.teamwork = it }
+            stats.communication?.let { member.communication = it }
+        }
         return MemberResponse.from(memberRepo.save(member))
     }
 

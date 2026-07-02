@@ -2,8 +2,8 @@ name: Keep Backend Awake
 
 on:
   schedule:
-    # Chạy mỗi 30 phút để backend không bị sleep
-    - cron: '*/10 * * * *'
+    # Chạy mỗi 5 phút để backend không bị sleep
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:

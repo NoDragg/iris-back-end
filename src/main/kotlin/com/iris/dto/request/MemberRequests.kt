@@ -23,7 +23,15 @@ data class UpdateMemberRequest(
     val location: String? = null,
     val rank: String? = null,
     val position: String? = null,
-    val avatarUrl: String? = null
+    val avatarUrl: String? = null,
+    val stats: StatsData? = null
+)
+
+data class StatsData(
+    val aim: Int? = null,
+    val gameSense: Int? = null,
+    val teamwork: Int? = null,
+    val communication: Int? = null
 )
 
 data class UpdateStatsRequest(
