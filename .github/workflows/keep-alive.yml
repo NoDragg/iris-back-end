@@ -1,0 +1,14 @@
+name: Keep Backend Awake
+
+on:
+  schedule:
+    # Chạy mỗi 30 phút để backend không bị sleep
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend
+        run: curl -s https://iris-back-end-2guw.onrender.com/api/v1/members > /dev/null && echo "Backend is awake"
