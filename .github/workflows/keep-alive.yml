@@ -11,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping backend
-        run: curl -s https://iris-back-end-2guw.onrender.com/api/v1/members > /dev/null && echo "Backend is awake"
+        run: curl -s https://iris-back-end-2guw.onrender.com/api/v1/health > /dev/null && echo "Backend is awake"
