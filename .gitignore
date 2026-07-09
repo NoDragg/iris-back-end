@@ -25,6 +25,9 @@ Thumbs.db
 # Docker
 .dockerignore
 
-
+.gradle
+.kotlin
+.playwright-mcp
+build
 # Docs
 docs/
