@@ -16,8 +16,8 @@ data class MemberAvailability(
 
 data class SlotResponse(
     val dayIndex: Int,
-    val start: Int,
-    val end: Int
+    val start: Double,
+    val end: Double
 ) {
     companion object {
         fun from(a: Availability) = SlotResponse(a.dayIndex, a.startHour, a.endHour)

@@ -19,8 +19,8 @@ data class Availability(
     val dayIndex: Int,
 
     @Column(name = "start_hour", nullable = false)
-    val startHour: Int,
+    val startHour: Double,
 
     @Column(name = "end_hour", nullable = false)
-    val endHour: Int
+    val endHour: Double
 )

@@ -11,6 +11,6 @@ data class SetAvailabilityRequest(
 data class AvailabilitySlot(
     val dayIndex: Int,
     val status: String = "available",
-    val startHour: Int? = null,
-    val endHour: Int? = null
+    val startHour: Double? = null,
+    val endHour: Double? = null
 )
