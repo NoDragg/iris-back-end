@@ -5,10 +5,12 @@ import com.iris.dto.response.*
 import com.iris.model.entity.Availability
 import com.iris.repository.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Service
+@Transactional
 class AvailabilityService(
     private val availabilityRepo: AvailabilityRepository,
     private val memberRepo: MemberRepository
@@ -35,19 +37,15 @@ class AvailabilityService(
     }
 
     fun setAvailability(memberId: String, req: SetAvailabilityRequest): List<SlotResponse> {
-        // Delete existing slots for this member/week
-        availabilityRepo.findByMemberIdAndWeekKey(memberId, req.week).forEach {
-            availabilityRepo.delete(it)
-        }
-
-        // Insert new slots
+        // Upsert per dayIndex: chỉ thay các ngày được gửi lên, không đụng ngày khác trong tuần
         val saved = req.slots.map { slot ->
+            availabilityRepo.deleteByMemberIdAndWeekKeyAndDayIndex(memberId, req.week, slot.dayIndex)
             availabilityRepo.save(Availability(
                 memberId = memberId,
                 weekKey = req.week,
                 dayIndex = slot.dayIndex,
-                startHour = slot.startHour ?: 0,
-                endHour = slot.endHour ?: 24
+                startHour = slot.startHour ?: 0.0,
+                endHour = slot.endHour ?: 24.0
             ))
         }
 
