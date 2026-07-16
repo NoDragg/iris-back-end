@@ -1,5 +1,6 @@
 package com.iris.dto.request
 
+import com.fasterxml.jackson.annotation.JsonAlias
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDate
@@ -16,8 +17,10 @@ data class CreateEventRequest(
     @field:NotNull
     val endTime: LocalTime,
     val location: String? = null,
+    @JsonAlias("map")
     val mapUrl: String? = null,
     val notes: String? = null,
+    @JsonAlias("participants")
     val participantIds: List<String>? = null
 )
 
@@ -28,8 +31,10 @@ data class UpdateEventRequest(
     val startTime: LocalTime? = null,
     val endTime: LocalTime? = null,
     val location: String? = null,
+    @JsonAlias("map")
     val mapUrl: String? = null,
     val notes: String? = null,
+    @JsonAlias("participants")
     val participantIds: List<String>? = null
 )
 

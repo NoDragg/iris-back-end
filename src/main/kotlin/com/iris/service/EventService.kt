@@ -5,6 +5,7 @@ import com.iris.dto.response.*
 import com.iris.model.entity.*
 import com.iris.repository.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
@@ -27,6 +28,7 @@ class EventService(
         return toResponse(opt.get())
     }
 
+    @Transactional
     fun create(req: CreateEventRequest): EventResponse {
         val event = Event(
             title = req.title,
@@ -40,13 +42,14 @@ class EventService(
         )
         val saved = eventRepo.save(event)
 
-        req.participantIds?.forEach { memberId ->
+        req.participantIds.orEmpty().distinct().forEach { memberId ->
             eventParticipantRepo.save(EventParticipant(eventId = saved.id, memberId = memberId))
         }
 
         return toResponse(saved)
     }
 
+    @Transactional
     fun update(id: String, req: UpdateEventRequest): EventResponse? {
         val opt = eventRepo.findById(id)
         if (!opt.isPresent) return null
@@ -69,7 +72,7 @@ class EventService(
                 eventParticipantRepo.delete(ep)
             }
             // Add new participants
-            newParticipantIds.forEach { memberId ->
+            newParticipantIds.distinct().forEach { memberId ->
                 eventParticipantRepo.save(EventParticipant(eventId = id, memberId = memberId))
             }
         }
@@ -98,14 +101,7 @@ class EventService(
     }
 
     private fun toResponse(event: Event): EventResponse {
-        val participants = eventParticipantRepo.findByEventId(event.id)
-        val participantResponses = participants.mapNotNull { ep ->
-            val opt = memberRepo.findById(ep.memberId)
-            if (opt.isPresent) {
-                val m = opt.get()
-                ParticipantResponse(m.id, m.name)
-            } else null
-        }
-        return EventResponse.from(event, participantResponses)
+        val participants = eventParticipantRepo.findByEventId(event.id).map { it.memberId }
+        return EventResponse.from(event, participants)
     }
 }

@@ -13,13 +13,13 @@ data class EventResponse(
     val startTime: LocalTime,
     val endTime: LocalTime,
     val location: String?,
-    val mapUrl: String?,
+    val map: String?,
     val notes: String?,
-    val participants: List<ParticipantResponse>,
+    val participants: List<String>,
     val createdAt: LocalDateTime
 ) {
     companion object {
-        fun from(e: Event, participants: List<ParticipantResponse>) = EventResponse(
+        fun from(e: Event, participants: List<String>) = EventResponse(
             id = e.id,
             title = e.title,
             type = e.type,
@@ -27,15 +27,10 @@ data class EventResponse(
             startTime = e.startTime,
             endTime = e.endTime,
             location = e.location,
-            mapUrl = e.mapUrl,
+            map = e.mapUrl,
             notes = e.notes,
             participants = participants,
             createdAt = e.createdAt
         )
     }
 }
-
-data class ParticipantResponse(
-    val id: String,
-    val name: String
-)
