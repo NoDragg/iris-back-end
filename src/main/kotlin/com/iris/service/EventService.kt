@@ -59,7 +59,22 @@ class EventService(
         req.location?.let { event.location = it }
         req.mapUrl?.let { event.mapUrl = it }
         req.notes?.let { event.notes = it }
-        return toResponse(eventRepo.save(event))
+        val saved = eventRepo.save(event)
+
+        // Update participants if provided
+        req.participantIds?.let { newParticipantIds ->
+            // Remove existing participants
+            val existing = eventParticipantRepo.findByEventId(id)
+            existing.forEach { ep ->
+                eventParticipantRepo.delete(ep)
+            }
+            // Add new participants
+            newParticipantIds.forEach { memberId ->
+                eventParticipantRepo.save(EventParticipant(eventId = id, memberId = memberId))
+            }
+        }
+
+        return toResponse(saved)
     }
 
     fun delete(id: String): Boolean {

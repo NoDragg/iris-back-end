@@ -29,7 +29,8 @@ data class UpdateEventRequest(
     val endTime: LocalTime? = null,
     val location: String? = null,
     val mapUrl: String? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    val participantIds: List<String>? = null
 )
 
 data class AddParticipantRequest(
